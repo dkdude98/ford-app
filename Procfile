@@ -1,1 +1,1 @@
-web: gunicorn ford-app.__init__:app
+web: gunicorn __init__:app
