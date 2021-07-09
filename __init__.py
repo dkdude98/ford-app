@@ -11,7 +11,6 @@ def create_app():
     app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
     app.config['TEMPLATES_AUTO_RELOAD'] = True
     app.config['SEND_FILE_MAX_AGE_DEFAULT'] = 0
-    app.run(debug=True)
 
     db.init_app(app)
 
@@ -24,3 +23,6 @@ def create_app():
     app.register_blueprint(main_blueprint)
 
     return app
+
+if __name__ == "main":
+    app.run(debug=True)
