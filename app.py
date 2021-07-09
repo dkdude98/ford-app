@@ -10,7 +10,9 @@ app = Flask(__name__)
 
 app.config['SECRET_KEY'] = '9OLWxND4o83j4K4iuopO'
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
-app.run(debug=True)
+
+if __name__ == "main":
+    app.run(debug=True)
 
 db.init_app(app)
 
