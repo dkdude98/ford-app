@@ -1,1 +1,1 @@
-web: python "__init__:create_app()"
+web: python main:app"
