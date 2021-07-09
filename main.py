@@ -1,25 +1,13 @@
-from flask import Flask
-from flask import render_template
-import asyncio
-from aiohttp import ClientSession
-import myq
-from flask import Blueprint
-from . import db
+# main.py
+
+from flask import Blueprint, render_template
+from flask_login import login_required, current_user
 
 main = Blueprint('main', __name__)
 
-#app = Flask(__name__)
-
-#def clever_function():
-#    return u'HELLO'
-
-# @app.route("/")
-# def index():
-# 	return render_template("sign-in.html")
-
 @main.route('/')
 def index():
-    return render_template("sign-in.html")
+    return render_template('sign-in.html')
 
 @main.route('/profile')
 def profile():
