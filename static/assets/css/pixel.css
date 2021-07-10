@@ -29448,3 +29448,7 @@ blockquote {
 .logo-bold {
     font-weight: 900;
 }
+
+.red {
+    background-color: red;
+}

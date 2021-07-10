@@ -20,13 +20,29 @@
                             <div class="text-center text-md-center mb-4 mt-md-0">
                                 <h1 class="mb-0 h3">Create an account</h1>
                             </div>
-                            <form action="#">
+                            {% with messages = get_flashed_messages() %}
+                            {% if messages %}
+                                <div class="alert alert-danger" style="text-align: center" role="alert">
+                                    {{ messages[0] }}. Go to <a href="{{ url_for('login') }}">login page</a>.
+                                </div>
+                            {% endif %}
+                            {% endwith %}
+                            <form method="POST" action="/signup">
+                                <!-- Form -->
+                                <div class="form-group mb-4">
+                                    <label for="name">Name</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="basic-addon3"><span class="fas fa-user-circle"></span></span>
+                                        <input type="name" class="form-control" placeholder="John Smith" id="name" name="name" required>
+                                    </div>  
+                                </div>
+                                <!-- End of Form -->
                                 <!-- Form -->
                                 <div class="form-group mb-4">
                                     <label for="email">Email</label>
                                     <div class="input-group">
                                         <span class="input-group-text" id="basic-addon3"><span class="fas fa-envelope"></span></span>
-                                        <input type="email" class="form-control" placeholder="example@company.com" id="email" required>
+                                        <input type="email" class="form-control" placeholder="example@company.com" name="email" id="email" required>
                                     </div>  
                                 </div>
                                 <!-- End of Form -->
@@ -35,17 +51,8 @@
                                     <div class="form-group mb-4">
                                         <label for="password">Password</label>
                                         <div class="input-group">
-                                            <span class="input-group-text" id="basic-addon4"><span class="fas fa-unlock-alt"></span></span>
-                                            <input type="password" placeholder="Password" class="form-control" id="password" required>
-                                        </div>  
-                                    </div>
-                                    <!-- End of Form -->
-                                    <!-- Form -->
-                                    <div class="form-group mb-4">
-                                        <label for="password_confirm">Confirm Password</label>
-                                        <div class="input-group">
                                             <span class="input-group-text" id="basic-addon5"><span class="fas fa-unlock-alt"></span></span>
-                                            <input type="password" placeholder="Confirm Password" class="form-control" id="password_confirm" required>
+                                            <input type="password" name="password" placeholder="Password" class="form-control" id="password_confirm" required>
                                         </div>  
                                     </div>
                                     <!-- End of Form -->
@@ -65,7 +72,6 @@
                 </div>
             </div>
         </section>
-
     </main>
 
 {% endblock content %}
