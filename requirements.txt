@@ -17,6 +17,8 @@ filelock==3.0.12
 Flask==1.1.2
 Flask-Login==0.5.0
 Flask-SQLAlchemy==2.5.1
+ford-prefect==0.0.1
+fordpass==0.0.5
 greenlet==1.1.0
 gunicorn==20.0.4
 idna==2.10
