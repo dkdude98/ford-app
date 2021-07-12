@@ -12,6 +12,7 @@
         {% include 'includes/preloader.html' %}
 
         <!-- Hero -->
+        <script src="https://polyfill.io/v3/polyfill.min.js?features=default"></script>
         <section style="position: relative; padding-top: 5rem;">
                 <div class="row justify-content-center">
                     <div class="col-12 col-md-8 text-center">
@@ -53,6 +54,12 @@
                                                 <div class="input-group">
                                                     <span class="input-group-text" id="basic-addon1"><span class="fas fa-unlock-alt"></span></span>
                                                     <input type="password" name="password" class="form-control" placeholder="Password" id="password" required>
+                                                </div>  
+                                            </div>
+                                            <div class="form-group mb-4">
+                                                <div class="input-group">
+                                                    <span class="input-group-text" id="basic-addon1"><span class="fas fa-car"></span></span>
+                                                    <input name="vin" class="form-control" placeholder="VIN" id="vin" required>
                                                 </div>  
                                             </div>
                                             </form>
@@ -117,10 +124,27 @@
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <h2 class="mb-3">Your Vehicle</h2>
-                                <h5 class="mb-3">2019 Ford Edge</h5>
+                                <h5 class="mb-3">{{car_year}} {{car_make}} {{car_model}}</h5>
+                                <h7 class="mb-3">Drive Type: {{driver_type}}</h7><br/>
+                                <h7 class="mb-3">Fuel Type: {{fuel_type}}</h7><br/>
+                                <h7 class="mb-3">VIN: {{car_vin}}</h7>
                             </div>
                             <div class="col-12 col-md-6 mt-4 mt-md-0 text-md-right">
                                 <img src="/static/assets/img/ford-image-test.png"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2">
+                <h5 style="text-align:center">Mark your garage on the map below</h5>
+                <div class="card shadow mb-4">
+                    <div class="card-body px-0 py-0 text-center text-md-left">
+                        <div class="row align-items-center">
+                            <div class="col-md-12">
+                                <div style="position:relative; height:400px; width: 100%">
+                                    <div id="map" style=" left: 0;top: 0;position: absolute;border-radius: 1rem;height:100%; min-width: 100%"></div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -166,6 +190,12 @@
         </div>
     </div>
 </div>
+<script
+      src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o&callback=initMap&libraries=&v=weekly&channel=2"
+      async
+    ></script>
+
+    <script src="{{ url_for('static', filename='assets/js/maps.js') }}"></script>
 
 {% endblock content %}
 

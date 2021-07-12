@@ -7,6 +7,7 @@ from flask_login import UserMixin
 from flask_login import LoginManager
 from flask_login import login_user
 from flask_login import login_required, current_user, logout_user
+import ford_data
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
@@ -45,7 +46,9 @@ def index():
 @app.route('/profile')
 @login_required
 def profile():
-    return render_template("blank.html",name=current_user.name)
+    vin="2FMPK3J98KBC63468"
+    r= ford_data.nhsta(vin)
+    return render_template("blank.html",name=current_user.name,car_vin=ford_data.getDetails().get("vin"),car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
 
 @app.route('/login')
 def login():
