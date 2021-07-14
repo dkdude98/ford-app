@@ -11,4 +11,4 @@ def getDetails():
 def nhsta(vin):         
     r = requests.get("https://vpic.nhtsa.dot.gov/api/vehicles/DecodeVinValues/"+ vin +"?format=json").json()
     results = r.get("Results")
-    return [(results[0].get("Make")).title(),(results[0].get("Model")).title(),(results[0].get("ModelYear")).title(),(results[0].get("DriveType")),(results[0].get("FuelTypePrimary"))]
+    return [(results[0].get("Make")).title(),(results[0].get("Model")).title(),(results[0].get("ModelYear")).title(),(results[0].get("DriveType")),(results[0].get("FuelTypePrimary")),(results[0].get("VIN"))]

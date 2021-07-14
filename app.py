@@ -15,7 +15,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///db.sqlite'
 app.config['TEMPLATES_AUTO_RELOAD'] = True
 # init SQLAlchemy so we can use it later in our models
 db = SQLAlchemy(app)
-db.create_all()
+vin = ""
 
 db.metadata.clear()
 class User(db.Model):
@@ -23,6 +23,9 @@ class User(db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    ford_email = db.Column(db.String(100))
+    ford_password = db.Column(db.String(100))
+    ford_vin = db.Column(db.String(17))
 
 db.metadata.clear()
 class User(UserMixin, db.Model):
@@ -30,6 +33,11 @@ class User(UserMixin, db.Model):
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
+    ford_email = db.Column(db.String(100))
+    ford_password = db.Column(db.String(100))
+    ford_vin = db.Column(db.String(17))
+
+db.create_all()
 
 if __name__ == "main":
     app.run(debug=True)
@@ -46,13 +54,36 @@ def index():
 @app.route('/profile')
 @login_required
 def profile():
-    vin="2FMPK3J98KBC63468"
+    
+    if current_user.ford_vin != None:
+        r= ford_data.nhsta(current_user.ford_vin)
+    else:
+        r=["","","","","",""]
+    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
+
+@app.route('/profile',  methods=['POST'])
+@login_required
+def profile_post():
+    fordemail=request.form.get('ford-email')
+    fordpassword=request.form.get('ford-password')
+    vin=request.form.get('vin')
+
+    user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':fordpassword, 'ford_vin':vin})
+    db.session.commit()
+
     r= ford_data.nhsta(vin)
-    return render_template("blank.html",name=current_user.name,car_vin=ford_data.getDetails().get("vin"),car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
+
+    if r[0] == "":
+        r=["","","","","",""]
+    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
 
 @app.route('/login')
 def login():
     return render_template("sign-in.html")
+
+@app.route('/save_ford')
+def save_ford():
+    return render_template("blank.html")
 
 @app.route('/signup')
 def signup():
@@ -79,7 +110,7 @@ def signup_post():
         return redirect(url_for('signup'))
 
     # create a new user with the form data. Hash the password so the plaintext version isn't saved.
-    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'))
+    new_user = User(email=email, name=name, password=generate_password_hash(password, method='sha256'),ford_email=None,ford_password=None,ford_vin=None)
 
     # add the new user to the database
     db.session.add(new_user)
