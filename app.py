@@ -85,12 +85,12 @@ def map_post():
     lat = request.form.get('lat')
     lng = request.form.get('lng')
 
+    user=(User.query.filter_by(email=current_user.email)).update({'garage_lat':lat,'garage_lng':lng})
+    db.session.commit()
+
     if current_user.garage_lat != None:
         reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
         reverse_geolocation = reverse.get("results")[0].get("formatted_address")
-
-    user=(User.query.filter_by(email=current_user.email)).update({'garage_lat':lat,'garage_lng':lng})
-    db.session.commit()
 
     if current_user.ford_vin != None:
         r= ford_data.nhsta(current_user.ford_vin)
