@@ -8,6 +8,7 @@ from flask_login import LoginManager
 from flask_login import login_user
 from flask_login import login_required, current_user, logout_user
 import ford_data
+import requests
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
@@ -26,6 +27,10 @@ class User(db.Model):
     ford_email = db.Column(db.String(100))
     ford_password = db.Column(db.String(100))
     ford_vin = db.Column(db.String(17))
+    myq_email = db.Column(db.String(100))
+    myq_password = db.Column(db.String(100))
+    garage_lat = db.Column(db.Float(10))
+    garage_lng = db.Column(db.Float(10))
 
 db.metadata.clear()
 class User(UserMixin, db.Model):
@@ -36,6 +41,10 @@ class User(UserMixin, db.Model):
     ford_email = db.Column(db.String(100))
     ford_password = db.Column(db.String(100))
     ford_vin = db.Column(db.String(17))
+    myq_email = db.Column(db.String(100))
+    myq_password = db.Column(db.String(100))
+    garage_lat = db.Column(db.Float(10))
+    garage_lng = db.Column(db.Float(10))
 
 db.create_all()
 
@@ -55,15 +64,47 @@ def index():
 @login_required
 def profile():
     
+    if current_user.garage_lat != None:
+        reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
+        reverse_geolocation = reverse.get("results")[0].get("formatted_address")
+
     if current_user.ford_vin != None:
         r= ford_data.nhsta(current_user.ford_vin)
     else:
         r=["","","","","",""]
-    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
+
+    if r[0] != 'Ford':
+        r=["","","","","",""]
+
+    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation)
 
 @app.route('/profile',  methods=['POST'])
 @login_required
-def profile_post():
+def map_post():
+
+    lat = request.form.get('lat')
+    lng = request.form.get('lng')
+
+    if current_user.garage_lat != None:
+        reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
+        reverse_geolocation = reverse.get("results")[0].get("formatted_address")
+
+    user=(User.query.filter_by(email=current_user.email)).update({'garage_lat':lat,'garage_lng':lng})
+    db.session.commit()
+
+    if current_user.ford_vin != None:
+        r= ford_data.nhsta(current_user.ford_vin)
+    else:
+        r=["","","","","",""]
+
+    if r[0] != 'Ford':
+        r=["","","","","",""]
+
+    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation)
+
+@app.route('/save_ford',  methods=['POST'])
+@login_required
+def save_ford_post():
     fordemail=request.form.get('ford-email')
     fordpassword=request.form.get('ford-password')
     vin=request.form.get('vin')
@@ -71,11 +112,19 @@ def profile_post():
     user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':fordpassword, 'ford_vin':vin})
     db.session.commit()
 
-    r= ford_data.nhsta(vin)
+    if current_user.garage_lat != None:
+        reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
+        reverse_geolocation = reverse.get("results")[0].get("formatted_address")
 
-    if r[0] == "":
+    if current_user.ford_vin != None:
+        r= ford_data.nhsta(vin)
+    else:
         r=["","","","","",""]
-    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4])
+
+    if r[0] != 'Ford':
+        r=["","","","","",""]
+
+    return redirect(url_for("profile",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation))
 
 @app.route('/login')
 def login():
