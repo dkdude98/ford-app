@@ -10,9 +10,10 @@ from flask_login import login_user
 from flask_login import login_required, current_user, logout_user
 import requests
 import ford_data
-import myq
 import asyncio
 from flask_table import Table, Col
+from aiohttp import ClientSession
+import pymyq
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
@@ -76,7 +77,7 @@ def index():
 @app.route('/profile')
 @login_required
 def profile():
-    done = loop.run_until_complete(myq.main('dak190@pitt.edu','dkdude123?'))
+    done = loop.run_until_complete(main('dak190@pitt.edu','dkdude123?'))
     print(done)
 
     items = [dict(device_id=done[0][0], online=done[0][1],device_state=str(done[0][2]).title())]
@@ -110,18 +111,6 @@ def map_post():
     user=(User.query.filter_by(email=current_user.email)).update({'garage_lat':lat,'garage_lng':lng})
     db.session.commit()
 
-    # if current_user.garage_lat != None:
-    #     reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
-    #     reverse_geolocation = reverse.get("results")[0].get("formatted_address")
-
-    # if current_user.ford_vin != None:
-    #     r= ford_data.nhsta(current_user.ford_vin)
-    # else:
-    #     r=["","","","","",""]
-
-    # if r[0] != 'Ford':
-    #     r=["","","","","",""]
-
     return redirect(url_for("profile"))
 
 @app.route('/save_ford',  methods=['POST'])
@@ -133,18 +122,6 @@ def save_ford_post():
 
     user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':fordpassword, 'ford_vin':vin})
     db.session.commit()
-
-    # if current_user.garage_lat != None:
-    #     reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
-    #     reverse_geolocation = reverse.get("results")[0].get("formatted_address")
-
-    # if current_user.ford_vin != None:
-    #     r= ford_data.nhsta(vin)
-    # else:
-    #     r=["","","","","",""]
-
-    # if r[0] != 'Ford':
-    #     r=["","","","","",""]
 
     return redirect(url_for("profile"))
 
@@ -211,3 +188,20 @@ def login_post():
 def load_user(user_id):
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(user_id))
+
+async def main(email, password) -> None:
+    """Create the aiohttp session and run."""
+    async with ClientSession() as websession:
+      myq = await pymyq.login(email, password, websession)
+
+      # Return only garage devices:
+      devices = myq.covers
+      garages=[None]*(len(devices))
+      if len(devices) != 0:
+        for idx, device_id in enumerate(
+          device_id
+          for device_id in devices):
+            device = devices[device_id]
+            garages[idx] = [device.device_id,device.online,device.state]
+            #await device.close()
+      return garages

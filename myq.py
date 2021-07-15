@@ -39,6 +39,6 @@ def print_info(number: int, device):
     print(f"      Current State: {device.state}")
 
 
-loop = asyncio.get_event_loop().run_until_complete(main('dak190@pitt.edu','dkdude123?'))
+#loop = asyncio.get_event_loop().run_until_complete(main('dak190@pitt.edu','dkdude123?'))
 #print(loop.name)
 #store_device.open()
