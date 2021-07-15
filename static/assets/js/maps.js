@@ -32,7 +32,7 @@ function placeMarker(location) {
       fillOpacity: 0.35,
       map: map,
       center: location,
-      radius: 10000,
+      radius: 100,
     });
   } else {
     marker.setPosition(location);
