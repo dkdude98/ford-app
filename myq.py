@@ -2,36 +2,22 @@ import asyncio
 from aiohttp import ClientSession
 import pymyq
 
-
-async def main() -> None:
+async def main(email, password) -> None:
     """Create the aiohttp session and run."""
     async with ClientSession() as websession:
-      myq = await pymyq.login('dak190@pitt.edu', 'dkdude123?', websession)
+      myq = await pymyq.login(email, password, websession)
 
-      # Return only cover devices:
+      # Return only garage devices:
       devices = myq.covers
-      # >>> {"serial_number123": <Device>}
-
-      # Return only lamps devices:
-     # devices = myq.lamps
-      # >>> {"serial_number123": <Device>}
-
-      # Return only gateway devices:
-      # devices = myq.gateways
-      # >>> {"serial_number123": <Device>}
-
-      # Return *all* devices:
-      # devices = myq.devices
-      # >>> {"serial_number123": <Device>, "serial_number456": <Device>}
+      garages=[None]*(len(devices))
       if len(devices) != 0:
         for idx, device_id in enumerate(
           device_id
           for device_id in devices):
             device = devices[device_id]
-            store_device = device
-            return store_device.name
-            print_info(number=idx, device=device)
+            garages[idx] = [device.device_id,device.online,device.state]
             #await device.close()
+      return garages
 
       #CG0846184923
 
@@ -51,9 +37,8 @@ def print_info(number: int, device):
     print(f"      Open Allowed: {device.open_allowed}")
     print(f"      Close Allowed: {device.close_allowed}")
     print(f"      Current State: {device.state}")
-    print("      ---------")
 
 
-asyncio.get_event_loop().run_until_complete(main())
-
+loop = asyncio.get_event_loop().run_until_complete(main('dak190@pitt.edu','dkdude123?'))
+#print(loop.name)
 #store_device.open()

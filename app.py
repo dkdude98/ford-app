@@ -1,14 +1,27 @@
 # main.py
 from flask import Blueprint, render_template, redirect, url_for, request, flash
 from flask import Flask
+from flask import render_template_string
 from flask_sqlalchemy import SQLAlchemy
 from werkzeug.security import generate_password_hash, check_password_hash
 from flask_login import UserMixin
 from flask_login import LoginManager
 from flask_login import login_user
 from flask_login import login_required, current_user, logout_user
-import ford_data
 import requests
+import ford_data
+import myq
+import asyncio
+from flask_table import Table, Col
+
+loop = asyncio.new_event_loop()
+asyncio.set_event_loop(loop)
+
+# Declare your table
+class ItemTable(Table):
+    device_id = Col('ID')
+    online = Col('Online')
+    device_state = Col('State')
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'secret'
@@ -63,10 +76,19 @@ def index():
 @app.route('/profile')
 @login_required
 def profile():
-    
+    done = loop.run_until_complete(myq.main('dak190@pitt.edu','dkdude123?'))
+    print(done)
+
+    items = [dict(device_id=done[0][0], online=done[0][1],device_state=str(done[0][2]).title())]
+    table = ItemTable(items, classes=['table table-hover'])
+    # Print the html
+    # print(table.__html__())
+
     if current_user.garage_lat != None:
         reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
         reverse_geolocation = reverse.get("results")[0].get("formatted_address")
+    else:
+        reverse_geolocation=""
 
     if current_user.ford_vin != None:
         r= ford_data.nhsta(current_user.ford_vin)
@@ -76,7 +98,7 @@ def profile():
     if r[0] != 'Ford':
         r=["","","","","",""]
 
-    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation)
+    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation,garage_table=table.__html__())
 
 @app.route('/profile',  methods=['POST'])
 @login_required
@@ -88,19 +110,19 @@ def map_post():
     user=(User.query.filter_by(email=current_user.email)).update({'garage_lat':lat,'garage_lng':lng})
     db.session.commit()
 
-    if current_user.garage_lat != None:
-        reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
-        reverse_geolocation = reverse.get("results")[0].get("formatted_address")
+    # if current_user.garage_lat != None:
+    #     reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
+    #     reverse_geolocation = reverse.get("results")[0].get("formatted_address")
 
-    if current_user.ford_vin != None:
-        r= ford_data.nhsta(current_user.ford_vin)
-    else:
-        r=["","","","","",""]
+    # if current_user.ford_vin != None:
+    #     r= ford_data.nhsta(current_user.ford_vin)
+    # else:
+    #     r=["","","","","",""]
 
-    if r[0] != 'Ford':
-        r=["","","","","",""]
+    # if r[0] != 'Ford':
+    #     r=["","","","","",""]
 
-    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation)
+    return redirect(url_for("profile"))
 
 @app.route('/save_ford',  methods=['POST'])
 @login_required
@@ -112,19 +134,19 @@ def save_ford_post():
     user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':fordpassword, 'ford_vin':vin})
     db.session.commit()
 
-    if current_user.garage_lat != None:
-        reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
-        reverse_geolocation = reverse.get("results")[0].get("formatted_address")
+    # if current_user.garage_lat != None:
+    #     reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
+    #     reverse_geolocation = reverse.get("results")[0].get("formatted_address")
 
-    if current_user.ford_vin != None:
-        r= ford_data.nhsta(vin)
-    else:
-        r=["","","","","",""]
+    # if current_user.ford_vin != None:
+    #     r= ford_data.nhsta(vin)
+    # else:
+    #     r=["","","","","",""]
 
-    if r[0] != 'Ford':
-        r=["","","","","",""]
+    # if r[0] != 'Ford':
+    #     r=["","","","","",""]
 
-    return redirect(url_for("profile",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation))
+    return redirect(url_for("profile"))
 
 @app.route('/login')
 def login():

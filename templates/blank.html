@@ -25,6 +25,9 @@
                             <button type="button" data-bs-toggle="modal" class="btn btn-primary" data-bs-target="#modal-myq">
                                         MyQ Login
                                     </button>
+                                    <button type="button" class="btn btn-primary" >
+                                        Save All
+                                    </button>
                             <a href="{{ url_for('logout') }}" class="btn btn-tertiary">
                                         Logout
                                     </a>
@@ -137,6 +140,21 @@
                 </div>
             </div>
             <div class="col-12 mt-2">
+                <div class="card shadow mb-4">
+                    <div class="card-body px-5 py-5 text-center text-md-left">
+                        <div class="row align-items-center">
+                            <div class="col-md-6">
+                                <h2 class="mb-3">Your Garages</h2>
+                                {{garage_table|safe}}
+                            </div>
+                            <div class="col-12 col-md-6 mt-4 mt-md-0 text-md-right">
+                                <img src="/static/assets/img/garage.png"/>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 mt-2">
                 <h5 style="text-align:center">Mark your garage on the map below</h5>
                 <div class="card shadow mb-4">
                     <div class="card-body px-0 py-0 text-center text-md-left">
@@ -150,7 +168,7 @@
                     </div>
                 </div>
                 <h6 style="text-align:center">Current Saved Location: {{reverse_geo}}
-                <form method='POST' action='/profile'><input type='hidden' value='' name='lat' id='lat'><input type='hidden' value='' name='lng' id='lng'><button id='location' name='location' type='submit' style='margin-top:1rem' class='btn btn-outline-tertiary'>Save Location</button></span></form></h6>
+                <form method='POST' action='/profile'><input type='hidden' value='' name='lat' id='lat'><input type='hidden' value='' name='lng' id='lng'><button id='location' name='location' type='submit' style='margin-top:1rem' class='btn btn-outline-tertiary'>Save Location</button></form></h6>
             </div>
             <!-- <div class="col-12 col-md-6 col-lg-4 mb-5 mb-lg-0">
                 <div class="card shadow">
