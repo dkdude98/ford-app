@@ -30,11 +30,7 @@ function placeMarker(location) {
     infowindow.close();
   }
 
-  // infowindow = new google.maps.InfoWindow({
-  //   content: "<form method='POST' action='/profile'><button id='location' name='location' type='submit' class='btn btn-outline-tertiary'>Save Location</button></form>"
-  // });
   document.getElementById('lat').value= location.lat()
   document.getElementById('lng').value= location.lng()
   console.log(location.lng() + " " + location.lat())
-  // infowindow.open(map, marker);
 }
