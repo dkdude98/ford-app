@@ -1,6 +1,6 @@
 var map;
 var marker;
-var infowindow;
+var cityCircle;
 
 function initMap() {
   var myCenter = new google.maps.LatLng(37.0902, 263.7129);
@@ -23,14 +23,33 @@ function placeMarker(location) {
       position: location,
       map: map,
     });
+
+    cityCircle = new google.maps.Circle({
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35,
+      map: map,
+      center: location,
+      radius: 10000,
+    });
   } else {
     marker.setPosition(location);
-  }
-  if (!!infowindow && !!infowindow.close) {
-    infowindow.close();
+    cityCircle.setMap(null);
+    cityCircle = new google.maps.Circle({
+      strokeColor: "#FF0000",
+      strokeOpacity: 0.8,
+      strokeWeight: 2,
+      fillColor: "#FF0000",
+      fillOpacity: 0.35,
+      map: map,
+      center: location,
+      radius: 100,
+    });
   }
 
+  
   document.getElementById('lat').value= location.lat()
   document.getElementById('lng').value= location.lng()
-  console.log(location.lng() + " " + location.lat())
 }
