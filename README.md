@@ -1,6 +1,6 @@
 # GarageBuddy - Ford Smart Car Connectivity Challenge
 
-To run the code, there is no need to download the repository. Please visit: https://ford-iot-app.herokuapp.com/
+To run the code, there is no need to download the repository. Please visit: https://ford-iot-app.herokuapp.com/.</br>
 A video demo can be found here: https://www.youtube.com/watch?v=Ou590cjRz3c
 
 You will need a MyQ Smart Garage Hub to experience all functionalities, as well as a Ford internet connected vehicle. The 24/7 Python backend however, is not running currently
