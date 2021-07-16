@@ -77,13 +77,22 @@ def index():
 @app.route('/profile')
 @login_required
 def profile():
-    done = loop.run_until_complete(main('dak190@pitt.edu','dkdude123?'))
-    print(done)
 
-    items = [dict(device_id=done[0][0], online=done[0][1],device_state=str(done[0][2]).title())]
-    table = ItemTable(items, classes=['table table-hover'])
-    # Print the html
-    # print(table.__html__())
+    table=''
+
+    if current_user.myq_email != None:
+        try:
+            done = loop.run_until_complete(main(current_user.myq_email,current_user.myq_password))
+            items = []
+            i = 0
+            for idx in done:
+                items.append(dict(device_id=done[i][0], online=done[i][1],device_state=str(done[i][2]).title()))
+                i+=1
+
+            table = ItemTable(items, classes=['table table-hover'])
+            table = table.__html__()
+        except:
+           table='Invalid MyQ Credentials. Please try again.'
 
     if current_user.garage_lat != None:
         reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
@@ -99,7 +108,7 @@ def profile():
     if r[0] != 'Ford':
         r=["","","","","",""]
 
-    return render_template("blank.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation,garage_table=table.__html__())
+    return render_template("dashboard.html",name=current_user.name,car_vin=r[5],car_make=r[0],car_year=r[2],car_model=r[1],driver_type=r[3],fuel_type=r[4],reverse_geo=reverse_geolocation,garage_table=table)
 
 @app.route('/profile',  methods=['POST'])
 @login_required
@@ -125,13 +134,24 @@ def save_ford_post():
 
     return redirect(url_for("profile"))
 
+@app.route('/save_myq',  methods=['POST'])
+@login_required
+def save_myq_post():
+    myqemail=request.form.get('myq-email')
+    myqpassword=request.form.get('myq-password')
+
+    user=(User.query.filter_by(email=current_user.email)).update({'myq_email':myqemail,'myq_password':myqpassword})
+    db.session.commit()
+
+    return redirect(url_for("profile"))
+
 @app.route('/login')
 def login():
     return render_template("sign-in.html")
 
 @app.route('/save_ford')
 def save_ford():
-    return render_template("blank.html")
+    return render_template("dashboard.html")
 
 @app.route('/signup')
 def signup():
