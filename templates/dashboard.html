@@ -25,9 +25,9 @@
                             <button type="button" data-bs-toggle="modal" style="margin-top:10px" class="btn btn-primary" data-bs-target="#modal-myq">
                                         MyQ Login
                                     </button>
-                                    <button type="button" style="margin-top:10px" class="btn btn-primary" >
+                                    <form name="save-all" method="POST" action="/save_all" class="mt-4"><button type="submit" style="margin-top:10px" class="btn btn-primary" >
                                         Save All
-                                    </button>
+                                    </button></form>
                             <a href="{{ url_for('logout') }}" style="margin-top:10px" class="btn btn-tertiary">
                                         Logout
                                     </a>
@@ -145,7 +145,9 @@
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <h2 class="mb-3">Your Garages</h2>
-                                {{garage_table|safe}}
+                                <form method='POST' action='/save_garage'>
+                                <div style="font-size:14px">{{garage_table|safe}}</div>
+                                <input type='hidden' value='' name='garage_id' id='garage_id'><button id='garage' name='garage' type='submit' class='btn btn-outline-tertiary'>Save Garage</button></form>
                             </div>
                             <div class="col-12 col-md-6 mt-4 mt-md-0 text-md-right">
                                 <img src="/static/assets/img/garage.png"/>

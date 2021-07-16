@@ -14,12 +14,14 @@ import asyncio
 from flask_table import Table, Col
 from aiohttp import ClientSession
 import pymyq
+import re
 
 loop = asyncio.new_event_loop()
 asyncio.set_event_loop(loop)
 
 # Declare your table
 class ItemTable(Table):
+    checkbox = Col('')
     device_id = Col('ID')
     online = Col('Online')
     device_state = Col('State')
@@ -34,7 +36,7 @@ vin = ""
 
 db.metadata.clear()
 class User(db.Model):
-    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
@@ -45,10 +47,11 @@ class User(db.Model):
     myq_password = db.Column(db.String(100))
     garage_lat = db.Column(db.Float(10))
     garage_lng = db.Column(db.Float(10))
+    garage_id = db.Column(db.String(100))
 
 db.metadata.clear()
 class User(UserMixin, db.Model):
-    id = db.Column(db.Integer, primary_key=True) # primary keys are required by SQLAlchemy
+    id = db.Column(db.Integer, primary_key=True)
     email = db.Column(db.String(100), unique=True)
     password = db.Column(db.String(100))
     name = db.Column(db.String(1000))
@@ -59,6 +62,7 @@ class User(UserMixin, db.Model):
     myq_password = db.Column(db.String(100))
     garage_lat = db.Column(db.Float(10))
     garage_lng = db.Column(db.Float(10))
+    garage_id = db.Column(db.String(100))
 
 db.create_all()
 
@@ -86,14 +90,15 @@ def profile():
             items = []
             i = 0
             for idx in done:
-                items.append(dict(device_id=done[i][0], online=done[i][1],device_state=str(done[i][2]).title()))
+                items.append(dict(checkbox='',device_id=done[i][0], online=done[i][1],device_state=str(done[i][2]).title()))
                 i+=1
 
             table = ItemTable(items, classes=['table table-hover'])
-            table = table.__html__()
+            table = str(table.__html__())
+            table = re.sub(r'(<td></td>)', r'<td><input type="checkbox" name="check1" /></td>', table)
         except:
            table='Invalid MyQ Credentials. Please try again.'
-
+        
     if current_user.garage_lat != None:
         reverse = requests.get("https://maps.googleapis.com/maps/api/geocode/json?latlng=" + str(current_user.garage_lat) + ","+ str(current_user.garage_lng) +"&key=AIzaSyAoTPPfyEHD_hjOW42BYq0NafmEe0j9d_o").json()
         reverse_geolocation = reverse.get("results")[0].get("formatted_address")
@@ -142,6 +147,28 @@ def save_myq_post():
 
     user=(User.query.filter_by(email=current_user.email)).update({'myq_email':myqemail,'myq_password':myqpassword})
     db.session.commit()
+
+    return redirect(url_for("profile"))
+
+@app.route('/save_garage',  methods=['POST'])
+@login_required
+def save_garage_post():
+
+    if request.form.get('check1') == 'on':
+        done = loop.run_until_complete(main(current_user.myq_email,current_user.myq_password))
+        user=(User.query.filter_by(email=current_user.email)).update({'garage_id':done[0][0]})
+        db.session.commit()
+
+    return redirect(url_for("profile"))
+
+@app.route('/save_all',  methods=['POST'])
+@login_required
+def save_all():
+
+    URL = "https://60f0f45738ecdf0017b0f981.mockapi.io/users"
+    data = {'id':current_user.id,'email':current_user.email,'ford_email': current_user.ford_email, 'ford_password':current_user.ford_password,'ford_vin':current_user.ford_vin,'myq_email':current_user.myq_email,'myq_password':current_user.myq_password,'garage_lat':current_user.garage_lat,'garage_lng':current_user.garage_lat,'garage_id':current_user.garage_id}
+    r = requests.delete(URL + "/" + str(current_user.id))
+    r = requests.post(url = URL, data = data)
 
     return redirect(url_for("profile"))
 
@@ -208,6 +235,8 @@ def login_post():
 def load_user(user_id):
     # since the user_id is just the primary key of our user table, use it in the query for the user
     return User.query.get(int(user_id))
+
+######################################################################
 
 async def main(email, password) -> None:
     """Create the aiohttp session and run."""
