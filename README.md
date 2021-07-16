@@ -1,5 +1,4 @@
-# Ford Smart Car Connectivity Challenge
-GarageBuddy
+# GarageBuddy - Ford Smart Car Connectivity Challenge
 
 To run the code, there is no need to download the repository. Please visit: https://ford-iot-app.herokuapp.com/
 A video demo can be found here: https://www.youtube.com/watch?v=Ou590cjRz3c
@@ -21,5 +20,5 @@ What it does:
 
 Also, the backend polls the car location and ignition status constantly. This is not the greatest solution, however it seems like the only way for this challenge. If Ford were
 to implement a feature like this, there is no reason to constantly poll. And they could integrate it with either something like MyQ, or HomeLink. HomeLink is fairly expensive 
-for auto manufacturers though, but MyQ integration would be considerably cheaper for car buyers.</br>
+for auto manufacturers though, but MyQ integration would be considerably cheaper for car buyers.</br></br>
 MyQ is just the beginning. This same concept can be introduced to a wide array of different IoT/Smart Home devices.
