@@ -134,7 +134,7 @@ def save_ford_post():
     fordpassword=request.form.get('ford-password')
     vin=request.form.get('vin')
 
-    user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':fordpassword, 'ford_vin':vin})
+    user=(User.query.filter_by(email=current_user.email)).update({'ford_email':fordemail,'ford_password':generate_password_hash(fordpassword, method='sha256'), 'ford_vin':vin})
     db.session.commit()
 
     return redirect(url_for("profile"))
@@ -166,7 +166,7 @@ def save_garage_post():
 def save_all():
 
     URL = "https://60f0f45738ecdf0017b0f981.mockapi.io/users"
-    data = {'id':current_user.id,'email':current_user.email,'ford_email': current_user.ford_email, 'ford_password':current_user.ford_password,'ford_vin':current_user.ford_vin,'myq_email':current_user.myq_email,'myq_password':current_user.myq_password,'garage_lat':current_user.garage_lat,'garage_lng':current_user.garage_lat,'garage_id':current_user.garage_id}
+    data = {'id':current_user.id,'email':current_user.email,'ford_email': current_user.ford_email, 'ford_password':generate_password_hash(current_user.ford_password, method='sha256'),'ford_vin':current_user.ford_vin,'myq_email':current_user.myq_email,'myq_password':current_user.myq_password,'garage_lat':current_user.garage_lat,'garage_lng':current_user.garage_lat,'garage_id':current_user.garage_id}
     r = requests.delete(URL + "/" + str(current_user.id))
     r = requests.post(url = URL, data = data)
 
